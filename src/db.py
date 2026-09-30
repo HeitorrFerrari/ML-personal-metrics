@@ -60,7 +60,12 @@ SCHEMA = """
     FOREIGN KEY (produto_id) REFERENCES produtos(id)
 );
 
-
+CREATE INDEX IF NOT EXISTS idx_pedidos_data     ON pedidos(data_pedido);
+CREATE INDEX IF NOT EXISTS idx_itens_produto    ON itens_pedido(produto_id);
+CREATE INDEX IF NOT EXISTS idx_custos_produto   ON custos(produto_id, vigente_desde);
+CREATE INDEX IF NOT EXISTS idx_pp_produto_data  ON precos_proprios(produto_id, coletado_em);
+CREATE INDEX IF NOT EXISTS idx_pc_produto_data  ON precos_concorrentes(produto_id, coletado_em);
+"""
 
 def get_connection() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)

@@ -2,7 +2,7 @@ import sqlite3
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = BASE_DIR/ "data" / "app.db"
+DB_PATH = BASE_DIR / "data" / "app.db"
 
 SCHEMA = """
     CREATE TABLE IF NOT EXISTS produtos (
@@ -15,7 +15,7 @@ SCHEMA = """
     );
     
     CREATE TABLE IF NOT EXISTS custos (
-    id TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     produto_id TEXT NOT NULL,
     custo_unitario REAL NOT NULL,
     vigente_desde TEXT NOT NULL,
@@ -24,15 +24,16 @@ SCHEMA = """
     
     
     CREATE TABLE IF NOT EXISTS pedidos (
-    id TEXT PRIMARY KEY,
-    data_pedido TEXT NOT NULL,
-    quantidade INTEGER NOT NULL DEFAULT,
-    status TEXT NOT NULL,
-    comprador_id TEXT,
+    id              TEXT PRIMARY KEY,
+    data_pedido     TEXT NOT NULL,
+    status          TEXT NOT NULL,
+    valor_total     REAL NOT NULL DEFAULT 0,
+    frete_vendedor  REAL NOT NULL DEFAULT 0,
+    comprador_id    TEXT
     );
     
     CREATE TABLE IF NOT EXISTS itens_pedido (
-    pedido_id TEXT NOT NULL
+    pedido_id TEXT NOT NULL,
     produto_id TEXT NOT NULL,
     quantidade INTEGER NOT NULL,
     preco_unitario REAL NOT NULL,
@@ -47,7 +48,7 @@ SCHEMA = """
     produto_id TEXT NOT NULL,
     preco REAL NOT NULL,
     coletado_em TEXT NOT NULL,
-    FOREIGN KEY (produto_id) REFERENCES produtos (id),
+    FOREIGN KEY (produto_id) REFERENCES produtos (id)
     );
     
     CREATE TABLE IF NOT EXISTS precos_concorrentes (
@@ -58,7 +59,12 @@ SCHEMA = """
     preco           REAL NOT NULL,
     coletado_em     TEXT NOT NULL,
     FOREIGN KEY (produto_id) REFERENCES produtos(id)
-);
+    );
+    
+    CREATE TABLE IF NOT EXISTS sync_state (
+        recurso TEXT PRIMARY KEY,
+        ultima_sync TEXT NOT NULL
+    );
 
 CREATE INDEX IF NOT EXISTS idx_pedidos_data     ON pedidos(data_pedido);
 CREATE INDEX IF NOT EXISTS idx_itens_produto    ON itens_pedido(produto_id);

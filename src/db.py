@@ -14,4 +14,7 @@ SCHEMA = """
     criado_em TEXT NOT NULL DEFAULT (datetime('now'))
     );
     
-    CREATE TABLE IF NOT EXISTS """
+    CREATE TABLE IF NOT EXISTS custos (
+    
+    
+    """

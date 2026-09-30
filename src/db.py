@@ -17,5 +17,9 @@ SCHEMA = """
     CREATE TABLE IF NOT EXISTS custos (
     id TEXT PRIMARY KEY,
     produto_id TEXT NOT NULL,
+    custo_unitario REAL NOT NULL,
+    vigente_desde TEXT NOT NULL,
+    FOREIGN KEY (produto_id) REFERENCES produtos (id)
+    );
     
     """

@@ -67,7 +67,6 @@ CREATE INDEX IF NOT EXISTS idx_pp_produto_data  ON precos_proprios(produto_id, c
 CREATE INDEX IF NOT EXISTS idx_pc_produto_data  ON precos_concorrentes(produto_id, coletado_em);
 """
 
-
 def get_connection() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)

@@ -43,3 +43,4 @@ def save_token(token: dict) -> None:
     tmp = TOKEN_PATH.with_sufix(".tmp")
     tmp.write_text(json.dumps(token, ident=2))
     os.chmod(tmp, 0o600)
+    tmp.replace(TOKEN_PATH)

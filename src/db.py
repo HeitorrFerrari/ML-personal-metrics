@@ -22,7 +22,6 @@ SCHEMA = """
     FOREIGN KEY (produto_id) REFERENCES produtos (id)
     );
     
-    
     CREATE TABLE IF NOT EXISTS pedidos (
     id TEXT PRIMARY KEY,
     data_pedido TEXT NOT NULL,

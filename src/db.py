@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS itens_pedido (
 );
 
 CREATE TABLE IF NOT EXISTS precos_proprios (
-    id              INTEGER PRIMARY KEY,
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
     produto_id      TEXT NOT NULL,
     preco           REAL NOT NULL,
     coletado_em     TEXT NOT NULL,

@@ -15,6 +15,6 @@ SCHEMA = """
     );
     
     CREATE TABLE IF NOT EXISTS custos (
-    
+    id TEXT PRIMARY KEY,
     
     """

@@ -31,4 +31,15 @@ SCHEMA = """
     comprador_id TEXT,
     );
     
+    CREATE TABLE IF NOT EXISTS itens_pedido (
+    pedido_id TEXT NOT NULL
+    produto_id TEXT NOT NULL,
+    quantidade INTEGER NOT NULL,
+    preco_unitario REAL NOT NULL,
+    taxa_ml REAL NOT NULL DEFAULT 0,
+    PRIMARY KEY (pedido_id, produto_id),
+    FOREIGN KEY (pedido_id) REFERENCES pedidos (id),
+    FOREIGN KEY (produto_id) REFERENCES produtos (id)
+    );
+    
     """

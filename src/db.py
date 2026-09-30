@@ -28,5 +28,6 @@ SCHEMA = """
     quantidade INTEGER NOT NULL DEFAULT,
     status TEXT NOT NULL,
     comprador_id TEXT,
+    );
     
     """

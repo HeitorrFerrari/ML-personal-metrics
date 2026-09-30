@@ -42,4 +42,11 @@ SCHEMA = """
     FOREIGN KEY (produto_id) REFERENCES produtos (id)
     );
     
+    CREATE TABLE IF NOT EXISTS precos_proprios (
+    id INTEGER PRIMARY KEY,
+    produto_id TEXT NOT NULL,
+    preco REAL NOT NULL,
+    coletado_em TEXT NOT NULL,
+    FOREIGN KEY (produto_id) REFERENCES produtos (id),
+    
     """

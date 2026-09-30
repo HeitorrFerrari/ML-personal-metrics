@@ -1,2 +1,6 @@
 .env
-.idea
+.idea/
+.venv/
+__pyache__/
+*.pyc
+data/

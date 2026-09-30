@@ -16,5 +16,6 @@ SCHEMA = """
     
     CREATE TABLE IF NOT EXISTS custos (
     id TEXT PRIMARY KEY,
+    produto_id TEXT NOT NULL,
     
     """

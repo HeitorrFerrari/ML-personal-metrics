@@ -13,7 +13,7 @@ def _required(name: str) -> str:
     return value
 
 ML_CLIENT_ID = _required("ML_CLIENT_ID")
-ML_CLIENT_SECRET = _required("ML_CLIENT_SECRET")
-ML_REDIRECT_URI = _required("ML_REDIRECT_URI")
+ML_SECRET_KEY= _required("ML_SECRET_KEY")
+ML_URL_REDIRECT = _required("ML_URL_REDIRECT")
 
 TOKEN_PATH = BASE_DIR / "data" / "token.json"

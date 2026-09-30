@@ -1,4 +1,4 @@
-import _sqlite3
+import sqlite3
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,5 +48,43 @@ SCHEMA = """
     preco REAL NOT NULL,
     coletado_em TEXT NOT NULL,
     FOREIGN KEY (produto_id) REFERENCES produtos (id),
+    );
     
-    """
+    CREATE TABLE IF NOT EXISTS precos_concorrentes (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    produto_id      TEXT NOT NULL,         -- seu produto comparado
+    concorrente_id  TEXT NOT NULL,         -- MLB do concorrente
+    vendedor        TEXT,
+    preco           REAL NOT NULL,
+    coletado_em     TEXT NOT NULL,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pedidos_data     ON pedidos(data_pedido);
+CREATE INDEX IF NOT EXISTS idx_itens_produto    ON itens_pedido(produto_id);
+CREATE INDEX IF NOT EXISTS idx_custos_produto   ON custos(produto_id, vigente_desde);
+CREATE INDEX IF NOT EXISTS idx_pp_produto_data  ON precos_proprios(produto_id, coletado_em);
+CREATE INDEX IF NOT EXISTS idx_pc_produto_data  ON precos_concorrentes(produto_id, coletado_em);
+"""
+
+
+def get_connection() -> sqlite3.Connection:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")  # desligado por padrão no SQLite
+    conn.row_factory = sqlite3.Row  # acesso por nome: row["titulo"]
+    return conn
+
+
+def init_db() -> None:
+    conn = get_connection()
+    try:
+        conn.executescript(SCHEMA)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+if __name__ == "__main__":
+    init_db()
+    print(f"Banco criado em {DB_PATH}")

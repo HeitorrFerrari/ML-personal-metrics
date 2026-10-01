@@ -44,3 +44,32 @@ def save_token(token: dict) -> None:
     tmp.write_text(json.dumps(token, ident=2))
     os.chmod(tmp, 0o600)
     tmp.replace(TOKEN_PATH)
+
+def load_tokens() -> dict:
+    if not TOKEN_PATH.exists():
+        raise RuntimeError("Token não encontrado. Rode: python -m src.auth")
+    return json.loads(TOKEN_PATH.read_text())
+
+
+def get_access_token() -> str:
+    tokens = load_tokens()
+    if time.time() > tokens["expires_at"] - MARGEM_EXPIRACAO:
+        tokens = refresh_tokens(tokens["refresh_token"])
+        save_tokens(tokens)
+    return tokens["access_token"]
+
+
+def _extract_code(texto: str) -> str:
+    texto = texto.strip()
+    if texto.startswith("http"):
+        return parse_qs(urlparse(texto).query)["code"][0]
+    return texto
+
+
+if __name__ == "__main__":
+    print("1. Abra no navegador e autorize:\n")
+    print(build_auth_url())
+    colado = input("\n2. Cole a URL para onde foi redirecionado (ou só o code): ")
+    tokens = exchange_code(_extract_code(colado))
+    save_tokens(tokens)
+    print(f"\nTokens salvos em {TOKEN_PATH} (user_id={tokens['user_id']})")

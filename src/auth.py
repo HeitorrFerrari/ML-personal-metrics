@@ -9,7 +9,8 @@ from src.config import ML_CLIENT_ID, ML_SECRET_KEY, ML_URL_REDIRECT, TOKEN_PATH
 
 AUTH_URL = "https://auth.mercadolivre.com.br/authorization"
 TOKEN_URL = "https://api.mercadolibre.com/oauth/token"
-MARGEM_EXPIRACAO = 300 #Tempo pra dar refresh
+MARGEM_EXPIRACAO = 300  # renova 5 min antes de expirar
+
 
 def build_auth_url() -> str:
     params = {
@@ -18,6 +19,7 @@ def build_auth_url() -> str:
         "redirect_uri": ML_URL_REDIRECT,
     }
     return f"{AUTH_URL}?{urlencode(params)}"
+
 
 def _post_token(data: dict) -> dict:
     resp = requests.post(
@@ -32,18 +34,29 @@ def _post_token(data: dict) -> dict:
     tokens["expires_at"] = time.time() + tokens["expires_in"]
     return tokens
 
-def refresh_token(refresh_token: str) -> dict:
+
+def exchange_code(code: str) -> dict:
+    return _post_token({
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": ML_URL_REDIRECT,
+    })
+
+
+def refresh_tokens(refresh_token: str) -> dict:
     return _post_token({
         "grant_type": "refresh_token",
         "refresh_token": refresh_token,
     })
 
-def save_token(token: dict) -> None:
+
+def save_tokens(tokens: dict) -> None:
     TOKEN_PATH.parent.mkdir(parents=True, exist_ok=True)
-    tmp = TOKEN_PATH.with_sufix(".tmp")
-    tmp.write_text(json.dumps(token, ident=2))
+    tmp = TOKEN_PATH.with_suffix(".tmp")
+    tmp.write_text(json.dumps(tokens, indent=2))
     os.chmod(tmp, 0o600)
     tmp.replace(TOKEN_PATH)
+
 
 def load_tokens() -> dict:
     if not TOKEN_PATH.exists():

@@ -77,7 +77,6 @@ def get_access_token() -> str:
         save_tokens(tokens)
     return tokens["access_token"]
 
-
 def _extract_code(texto: str) -> str:
     texto = texto.strip()
     if not texto.startswith("http"):

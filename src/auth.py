@@ -34,7 +34,6 @@ def _post_token(data: dict) -> dict:
     tokens["expires_at"] = time.time() + tokens["expires_in"]
     return tokens
 
-
 def exchange_code(code: str) -> dict:
     return _post_token({
         "grant_type": "authorization_code",

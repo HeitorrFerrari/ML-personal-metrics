@@ -53,8 +53,9 @@ def refresh_tokens(refresh_token: str) -> dict:
 def save_tokens(tokens: dict) -> None:
     TOKEN_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmp = TOKEN_PATH.with_suffix(".tmp")
-    tmp.write_text(json.dumps(tokens, indent=2))
-    os.chmod(tmp, 0o600)
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        json.dump(tokens, f, indent=2)
     tmp.replace(TOKEN_PATH)
 
 
@@ -67,16 +68,24 @@ def load_tokens() -> dict:
 def get_access_token() -> str:
     tokens = load_tokens()
     if time.time() > tokens["expires_at"] - MARGEM_EXPIRACAO:
-        tokens = refresh_tokens(tokens["refresh_token"])
+        try:
+            tokens = refresh_tokens(tokens["refresh_token"])
+        except RuntimeError as e:
+            raise RuntimeError(
+                f"Refresh falhou ({e}). Rode de novo: python -m src.auth"
+            ) from e
         save_tokens(tokens)
     return tokens["access_token"]
 
 
 def _extract_code(texto: str) -> str:
     texto = texto.strip()
-    if texto.startswith("http"):
-        return parse_qs(urlparse(texto).query)["code"][0]
-    return texto
+    if not texto.startswith("http"):
+        return texto
+    qs = parse_qs(urlparse(texto).query)
+    if "code" not in qs:
+        raise ValueError(f"URL sem 'code': {qs}")
+    return qs["code"][0]
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS produtos (
     criado_em       TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+
 CREATE TABLE IF NOT EXISTS custos (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     produto_id      TEXT NOT NULL,

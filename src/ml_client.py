@@ -25,4 +25,6 @@ def get(path: str, params: dict = None) -> dict:
         if resp.status_code == 401:
             raise RuntimeError("401: Token inválido")
         resp.raise_for_status()
+        return resp.json()
+    raise RuntimeError(f"Falhou apos {MAX_TENTATIVAS} tentativas")
 

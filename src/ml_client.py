@@ -28,3 +28,5 @@ def get(path: str, params: dict = None) -> dict:
         return resp.json()
     raise RuntimeError(f"Falhou apos {MAX_TENTATIVAS} tentativas")
 
+def get_paginated(path: str, params: dict | None = None, limit: int = 50) -> Iterator:
+    params = params or {}

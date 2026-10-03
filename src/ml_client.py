@@ -1,0 +1,21 @@
+import time
+from collections.abc import Iterator
+
+import requests
+
+from src.auth import get_access_token
+
+BASE_URL = "https://api.mercadolibre.com"
+MAX_TENTATIVAS = 4
+
+_session = requests.Session()
+
+def get(path: str, params: dict = None) -> dict:
+    url = f"{BASE_URL}{path}"
+    for tentativa in range(MAX_TENTATIVAS):
+        resp = _session.get(
+            url,
+            params=params,
+            headers={"Authorization": f"Bearer {get_access_token()}"},
+            timeout = 30
+        )

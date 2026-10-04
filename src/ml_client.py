@@ -8,7 +8,6 @@ from src.auth import get_access_token
 BASE_URL = "https://api.mercadolibre.com"
 MAX_TENTATIVAS = 4
 
-
 _session = requests.Session()
 
 def get(path: str, params: dict = None) -> dict:

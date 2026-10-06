@@ -10,6 +10,7 @@ MAX_TENTATIVAS = 4
 
 _session = requests.Session()
 
+
 def get(path: str, params: dict = None) -> dict:
     url = f"{BASE_URL}{path}"
     for tentativa in range(MAX_TENTATIVAS):

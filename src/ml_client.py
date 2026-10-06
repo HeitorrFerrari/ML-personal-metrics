@@ -32,6 +32,5 @@ def get(path: str, params: dict = None) -> dict:
 
 
 def get_paginated(path: str, params: dict | None = None, limit: int = 50) -> Iterator:
-
     params = params or {}
 

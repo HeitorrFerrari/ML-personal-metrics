@@ -1,9 +1,7 @@
 from src.db import get_connection
 
-# Status que contam como venda. Pedido cancelado fica no banco, mas fora das métricas.
 STATUS_VALIDOS = ("paid",)
 
-# ASSUMIDO: sale_fee do ML é por unidade. Se for o total do item, troque por "ii.taxa_ml".
 TAXA_SQL = "ii.taxa_ml * ii.quantidade"
 
 # Custo vigente na data da venda: o mais recente com vigente_desde <= data do pedido.

@@ -1,9 +1,12 @@
+import logging
 import time
 from collections.abc import Iterator
 
 import requests
 
 from src.auth import get_access_token
+
+log = logging.getLogger(__name__)
 
 BASE_URL = "https://api.mercadolibre.com"
 MAX_TENTATIVAS = 4

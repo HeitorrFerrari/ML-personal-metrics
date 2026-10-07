@@ -9,7 +9,7 @@ from src.config import ML_CLIENT_ID, ML_SECRET_KEY, ML_URL_REDIRECT, TOKEN_PATH
 
 AUTH_URL = "https://auth.mercadolivre.com.br/authorization"
 TOKEN_URL = "https://api.mercadolibre.com/oauth/token"
-MARGEM_EXPIRACAO = 300  # renova 5 min antes de expirar
+MARGEM_EXPIRACAO = 300
 
 
 def build_auth_url() -> str:
@@ -64,9 +64,9 @@ def load_tokens() -> dict:
     return json.loads(TOKEN_PATH.read_text())
 
 
-def get_access_token() -> str:
+def get_access_token(force: bool = False) -> str:
     tokens = load_tokens()
-    if time.time() > tokens["expires_at"] - MARGEM_EXPIRACAO:
+    if force or time.time() > tokens["expires_at"] - MARGEM_EXPIRACAO:
         try:
             tokens = refresh_tokens(tokens["refresh_token"])
         except RuntimeError as e:

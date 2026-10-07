@@ -81,10 +81,29 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
+# CREATE TABLE IF NOT EXISTS não altera tabela que já existe. Colunas adicionadas
+# depois da primeira versão do schema entram aqui, para bancos antigos.
+COLUNAS_ADICIONADAS = {
+    "pedidos": {
+        "valor_total": "REAL NOT NULL DEFAULT 0",
+        "frete_vendedor": "REAL NOT NULL DEFAULT 0",
+    },
+}
+
+
+def _migrar(conn: sqlite3.Connection) -> None:
+    for tabela, colunas in COLUNAS_ADICIONADAS.items():
+        existentes = {r["name"] for r in conn.execute(f"PRAGMA table_info({tabela})")}
+        for nome, ddl in colunas.items():
+            if nome not in existentes:
+                conn.execute(f"ALTER TABLE {tabela} ADD COLUMN {nome} {ddl}")
+
+
 def init_db() -> None:
     conn = get_connection()
     try:
         conn.executescript(SCHEMA)
+        _migrar(conn)
         conn.commit()
     finally:
         conn.close()

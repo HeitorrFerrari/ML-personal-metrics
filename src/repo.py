@@ -14,7 +14,7 @@ def adicionar_custo(produto_id: str, custo_unitario: float, vigente_desde: str |
         raise ValueError("custo_unitario não pode ser negativo")
 
     vigente_desde = vigente_desde or date.today().isoformat()
-    date.fromisoformat(vigente_desde)  # ValueError se não for YYYY-MM-DD
+    date.fromisoformat(vigente_desde)
 
     conn = get_connection()
     try:

@@ -4,7 +4,6 @@ STATUS_VALIDOS = ("paid",)
 
 TAXA_SQL = "ii.taxa_ml * ii.quantidade"
 
-# Custo vigente na data da venda: o mais recente com vigente_desde <= data do pedido.
 # Compara como texto ISO 8601, então vigente_desde deve estar em 'YYYY-MM-DD'.
 CUSTO_SQL = """
     (SELECT c.custo_unitario FROM custos c

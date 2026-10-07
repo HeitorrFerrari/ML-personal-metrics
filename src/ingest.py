@@ -36,4 +36,9 @@ def _salvar_pedido(conn: sqlite3.Connection, order:dict) -> None:
                     status      = excluded.status,
                     valor_total = excluded.valor_total
                 """,
+        (
+            pedido_id,
+            order["data_created"],
+            order
+        )
     )

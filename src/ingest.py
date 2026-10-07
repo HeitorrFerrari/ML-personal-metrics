@@ -11,4 +11,7 @@ def _iso(dt: datetime) -> str:
     return dt.isoformat(timespec="milliseconds")
 
 def _ler_ultima_sync(conn: sqlite3.Connection) -> str | None:
-    row
+    row = conn.execute(
+        "SELECT ultima_sync FROM sync_state WHERE recursos = ?", (RECURSO, )
+    ).fetchone()
+    return row["ultima_sync"] if row else None

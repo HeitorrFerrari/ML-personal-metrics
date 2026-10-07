@@ -45,7 +45,9 @@ def get(path: str, params: dict | None = None) -> dict:
         except (requests.Timeout, requests.ConnectionError):
             if ultima:
                 raise
-            time.sleep(_espera(None, tentativa))
+            espera = _espera(None, tentativa)
+            log.warning("GET %s: timeout/conexão, nova tentativa em %.0fs", path, espera)
+            time.sleep(espera)
             continue
 
         if resp.status_code == 200:
@@ -53,12 +55,15 @@ def get(path: str, params: dict | None = None) -> dict:
 
         # 401: renova o token e tenta de novo, mas só uma vez
         if resp.status_code == 401 and not ja_renovou:
+            log.warning("GET %s: 401, renovando token", path)
             forcar_refresh = ja_renovou = True
             continue
 
         # 429 e 5xx: problema temporário, vale repetir
         if (resp.status_code == 429 or resp.status_code >= 500) and not ultima:
-            time.sleep(_espera(resp, tentativa))
+            espera = _espera(resp, tentativa)
+            log.warning("GET %s: %s, nova tentativa em %.0fs", path, resp.status_code, espera)
+            time.sleep(espera)
             continue
 
         # qualquer outro caso (400, 403, 404, 401 repetido...) não adianta repetir
@@ -88,6 +93,22 @@ def get_me() -> dict:
 
 def get_item(item_id: str) -> dict:
     return get(f"/items/{item_id}")
+
+
+def get_user_items(seller_id: int | str, status: str = "active") -> Iterator[str]:
+    """IDs dos anúncios do vendedor (a busca devolve só os ids)."""
+    return get_paginated(f"/users/{seller_id}/items/search", {"status": status})
+
+
+def get_items(item_ids: list[str]) -> list[dict]:
+    """Detalhes de vários anúncios numa chamada só (multiget, no máximo 20 ids).
+
+    Cada elemento vem como {"code": 200, "body": {...}}; devolve só os bodies válidos.
+    """
+    if len(item_ids) > 20:
+        raise ValueError("multiget aceita no máximo 20 ids por chamada")
+    resposta = get("/items", {"ids": ",".join(item_ids)})
+    return [r["body"] for r in resposta if r.get("code") == 200]
 
 
 def get_orders(seller_id: int | str, desde: str | None = None) -> Iterator[dict]:

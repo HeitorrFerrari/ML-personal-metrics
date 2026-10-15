@@ -21,6 +21,7 @@ def get(path: str, params: dict = None) -> dict:
             timeout = 30
         )
 
+
         if resp.status_code == 429 or resp.status_code >= 500:
             time.sleep(2 ** tentativa)
         continue

@@ -30,7 +30,6 @@ def get(path: str, params: dict | None = None) -> dict | list:
     forcar_refresh = False
     ja_renovou = False
 
-
     for tentativa in range(MAX_TENTATIVAS):
         token = get_access_token(force=forcar_refresh)
         forcar_refresh = False

@@ -53,7 +53,6 @@ def get(path: str, params: dict | None = None) -> dict | list:
         if resp.status_code == 200:
             return resp.json()
 
-        # 401: renova o token e tenta de novo, mas só uma vez
         if resp.status_code == 401 and not ja_renovou:
             log.warning("GET %s: 401, renovando token", path)
             forcar_refresh = ja_renovou = True

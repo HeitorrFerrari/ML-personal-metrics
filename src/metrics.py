@@ -11,6 +11,14 @@ CUSTO_SQL = """
 """
 
 
+# frete é do pedido; rateia entre os itens proporcionalmente à receita de cada um
+FRETE_SQL = """
+    p.frete_vendedor * (ii.quantidade * ii.preco_unitario) /
+    (SELECT SUM(i2.quantidade * i2.preco_unitario) FROM itens_pedido i2
+     WHERE i2.pedido_id = p.id)
+"""
+
+
 def _linhas_cte() -> str:
     """CTE com uma linha por item vendido, já com receita, taxa e custo calculados."""
     marcadores = ",".join("?" * len(STATUS_VALIDOS))
@@ -24,6 +32,7 @@ def _linhas_cte() -> str:
                 ii.quantidade                        AS quantidade,
                 ii.quantidade * ii.preco_unitario    AS receita,
                 {TAXA_SQL}                           AS taxa,
+                {FRETE_SQL}                          AS frete,
                 {CUSTO_SQL}                          AS custo_unitario
             FROM itens_pedido ii
             JOIN pedidos  p  ON p.id  = ii.pedido_id
@@ -57,10 +66,11 @@ def resumo(desde: str = "0000", ate: str = "9999") -> dict:
             COUNT(DISTINCT pedido_id)                       AS pedidos,
             COALESCE(SUM(quantidade), 0)                    AS unidades,
             COALESCE(SUM(taxa), 0)                          AS taxas,
+            COALESCE(SUM(frete), 0)                         AS frete,
             COALESCE(SUM(CASE WHEN custo_unitario IS NOT NULL
                          THEN receita END), 0)              AS receita_com_custo,
             COALESCE(SUM(CASE WHEN custo_unitario IS NOT NULL
-                         THEN receita - taxa - custo_unitario * quantidade END), 0) AS margem,
+                         THEN receita - taxa - frete - custo_unitario * quantidade END), 0) AS margem,
             COALESCE(SUM(custo_unitario IS NULL), 0)        AS itens_sem_custo
         FROM linhas
     """
@@ -90,7 +100,7 @@ def top_produtos(desde: str = "0000", ate: str = "9999", limite: int = 10) -> li
                SUM(quantidade) AS unidades,
                SUM(receita)    AS receita,
                SUM(CASE WHEN custo_unitario IS NOT NULL
-                   THEN receita - taxa - custo_unitario * quantidade END) AS margem
+                   THEN receita - taxa - frete - custo_unitario * quantidade END) AS margem
         FROM linhas
         GROUP BY produto_id, titulo
         ORDER BY receita DESC

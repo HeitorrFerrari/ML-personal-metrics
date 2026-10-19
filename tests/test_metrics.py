@@ -36,6 +36,16 @@ class TestMetrics(BancoTemporario):
         # (100-10-50) + (200-20-2*60) = 40 + 60
         self.assertEqual(m.resumo()["margem"], 100)
 
+    def test_frete_e_rateado_e_abate_da_margem(self):
+        conn = db.get_connection()
+        conn.execute("UPDATE pedidos SET frete_vendedor = 26 WHERE id = '2'")  # A=200, B=30
+        conn.commit()
+        conn.close()
+        r = m.resumo()
+        self.assertEqual(r["frete"], 26)
+        # frete de A no pedido 2 = 26 * 200/230; B sem custo fica fora da margem
+        self.assertAlmostEqual(r["margem"], 100 - 26 * 200 / 230)
+
     def test_cancelado_fica_fora(self):
         self.assertEqual(m.resumo("2026-10-06", "2026-10-07")["receita"], 0)
 

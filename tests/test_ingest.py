@@ -53,6 +53,34 @@ class TestPedidos(BancoTemporario):
         self.assertEqual((self.conta("pedidos"), self.conta("sync_state")), (0, 0))
 
 
+class TestFrete(BancoTemporario):
+    def frete(self):
+        conn = db.get_connection()
+        try:
+            return conn.execute("SELECT frete_vendedor FROM pedidos").fetchone()[0]
+        finally:
+            conn.close()
+
+    def sync_com_frete(self, pedido, **kw):
+        with patch.object(ing, "get_frete_vendedor", **kw) as gf:
+            sync([pedido])
+        return gf
+
+    def test_grava_frete_do_vendedor(self):
+        gf = self.sync_com_frete(dict(PEDIDO, shipping={"id": 9}), return_value=24.45)
+        self.assertEqual(self.frete(), 24.45)
+        gf.assert_called_once_with(9, 5)
+
+    def test_sem_envio_ou_cancelado_nao_consulta(self):
+        gf = self.sync_com_frete(PEDIDO, return_value=1)
+        gf2 = self.sync_com_frete(dict(PEDIDO, id=2, status="cancelled", shipping={"id": 9}), return_value=1)
+        self.assertEqual((gf.call_count, gf2.call_count, self.frete()), (0, 0, 0))
+
+    def test_falha_no_frete_nao_derruba_a_sync(self):
+        self.sync_com_frete(dict(PEDIDO, shipping={"id": 9}), side_effect=RuntimeError("404"))
+        self.assertEqual((self.conta("pedidos"), self.frete()), (1, 0))
+
+
 ANUNCIO = {"id": "MLB1", "title": "Fone", "seller_custom_field": "S1",
            "category_id": "C", "price": 99.9}
 

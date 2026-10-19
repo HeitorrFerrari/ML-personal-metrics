@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from src.db import get_connection, init_db
 from src.log import configurar_logging
-from src.ml_client import get_items, get_me, get_orders, get_user_items
+from src.ml_client import get_frete_vendedor, get_items, get_me, get_orders, get_user_items
 
 log = logging.getLogger(__name__)
 
@@ -95,6 +95,21 @@ def _salvar_pedido(conn: sqlite3.Connection, order: dict) -> None:
         )
 
 
+def _salvar_frete(conn: sqlite3.Connection, order: dict, seller_id: int | str) -> None:
+    """Busca o custo do envio. Falha aqui não derruba a sync: o frete fica como estava."""
+    shipment_id = (order.get("shipping") or {}).get("id")
+    if not shipment_id or order["status"] == "cancelled":
+        return
+    try:
+        frete = get_frete_vendedor(shipment_id, seller_id)
+    except RuntimeError as e:
+        log.warning("pedido %s: frete indisponível (%s)", order["id"], e)
+        return
+    conn.execute(
+        "UPDATE pedidos SET frete_vendedor = ? WHERE id = ?", (frete, str(order["id"]))
+    )
+
+
 def sync_pedidos() -> int:
     inicio = datetime.now(timezone.utc)
     conn = get_connection()
@@ -109,6 +124,7 @@ def sync_pedidos() -> int:
         with conn:  # uma transação: ou grava tudo, ou nada
             for order in get_orders(seller_id, desde=desde):
                 _salvar_pedido(conn, order)
+                _salvar_frete(conn, order, seller_id)
                 total += 1
             _gravar_sync(conn, _iso(inicio))
         log.info("pedidos: %d sincronizados (desde=%s)", total, desde)

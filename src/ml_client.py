@@ -116,3 +116,9 @@ def get_orders(seller_id: int | str, desde: str | None = None) -> Iterator[dict]
     if desde:
         params["order.date_created.from"] = desde
     return get_paginated("/orders/search", params)
+
+
+def get_frete_vendedor(shipment_id: int | str, seller_id: int | str) -> float:
+    """Quanto o vendedor paga pelo envio (já com o desconto do ML), em R$."""
+    custos = get(f"/shipments/{shipment_id}/costs")
+    return sum(s.get("cost") or 0 for s in custos.get("senders", []) if str(s.get("user_id")) == str(seller_id))

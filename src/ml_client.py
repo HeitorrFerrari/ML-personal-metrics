@@ -14,7 +14,6 @@ TIMEOUT = 30
 
 _session = requests.Session()
 
-
 def _espera(resp: requests.Response | None, tentativa: int) -> float:
     """Retry-After se o ML mandou; senão backoff exponencial (1s, 2s, 4s...)."""
     if resp is not None:

@@ -25,7 +25,6 @@ def _espera(resp: requests.Response | None, tentativa: int) -> float:
     return 2 ** tentativa
 
 
-
 def get(path: str, params: dict | None = None) -> dict | list:
     url = f"{BASE_URL}{path}"
     forcar_refresh = False

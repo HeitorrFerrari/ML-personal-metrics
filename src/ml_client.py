@@ -36,7 +36,6 @@ def get(path: str, params: dict | None = None) -> dict | list:
         ultima = tentativa == MAX_TENTATIVAS - 1
 
 
-
         try:
             resp = _session.get(
                 url,

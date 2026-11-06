@@ -51,6 +51,7 @@ def get(path: str, params: dict | None = None) -> dict | list:
             time.sleep(espera)
             continue
 
+
         if resp.status_code == 200:
             return resp.json()
 

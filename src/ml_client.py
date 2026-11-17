@@ -59,7 +59,7 @@ def get(path: str, params: dict | None = None) -> dict | list:
             forcar_refresh = ja_renovou = True
             continue
 
-        # 429 e 5xx: problema temporário, vale repetir
+
         if (resp.status_code == 429 or resp.status_code >= 500) and not ultima:
             espera = _espera(resp, tentativa)
             log.warning("GET %s: %s, nova tentativa em %.0fs", path, resp.status_code, espera)
